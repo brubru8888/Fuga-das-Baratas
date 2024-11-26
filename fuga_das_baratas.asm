@@ -1,4 +1,5 @@
 call menu
+call instrucoes
 jmp main
 
 ; Charmap
@@ -160,15 +161,45 @@ menu:
 	loadn r1, #tela0Linha0 ; Endereco onde comeca a primeira linha da tela
 	loadn r2, #0  		   ; Cor branca
 	call ImprimeTela
-	
-	loadn r2, #13  		   ; r2 = 13 = ENTER
-	; Enquanto enter não for pressionado le a tecla
+	loadn r2, #13 
+
 	lerTecla:
 	inchar r1
 	cmp r1, r2
-	jne lerTecla 			; if (r1 != ENTER) lerTecla
+	jne lerTecla
 
-	call ApagaTela  		; Apaga a tela e volta pra main
+	call ApagaTela
+	; Enquanto enter não for pressionado le a tecla
+ 			; if (r1 != ENTER) lerTecla
+
+
+
+	pop r2
+	pop r1
+
+	rts
+
+instrucoes:
+	call ApagaTela
+
+	push r1
+	push r2
+
+	loadn r1, #tela1Linha0 ; Endereco onde comeca a primeira linha da tela
+	loadn r2, #0  		   ; Cor branca
+	call ImprimeTela
+	loadn r2, #106 
+
+	lerTecla2:
+	inchar r1
+	cmp r1, r2
+	jne lerTecla2
+
+	call ApagaTela
+	; Enquanto enter não for pressionado le a tecla
+ 			; if (r1 != ENTER) lerTecla
+
+
 
 	pop r2
 	pop r1
@@ -1096,24 +1127,24 @@ Delay:
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-TELAS-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ;	Menu
 tela0Linha0  : string "                                        "
-tela0Linha1  : string "                                        "
-tela0Linha2  : string "                                        "
-tela0Linha3  : string "                                        "
-tela0Linha4  : string "                                        "
-tela0Linha5  : string "     _____ _____ __  __  _____          "
-tela0Linha6  : string "    |_   _/ ____|  {/  |/ ____|         "
-tela0Linha7  : string "      | || |    | {  / | |              "
-tela0Linha8  : string "      | || |    | |{/| | |              "
-tela0Linha9  : string "     _| || |____| |  | | |____          "
-tela0Linha10 : string "    |_____{_____|_|  |_|{_____|______   "
-tela0Linha11 : string "     / ____|  __ { /{   / ____|  ____|  "
-tela0Linha12 : string "    | (___ | |__) /  { | |    | |__     "
-tela0Linha13 : string "     {___ {|  ___/ /{ {| |    |  __|    "
-tela0Linha14 : string "     ____) | |  / ____ { |____| |____   "
-tela0Linha15 : string "    |_____/|_| /_/    {_{_____|______|  "
-tela0Linha16 : string "                                        "
-tela0Linha17 : string "                                        "
-tela0Linha18 : string "                                        "
+tela0Linha1  : string "         _____                          "
+tela0Linha2  : string "        |  ___|   _  __ _  __ _         "
+tela0Linha3  : string "        | |_ | | | |/ _` |/ _` |        "
+tela0Linha4  : string "        |  _|| |_| | (_| | (_| |        "
+tela0Linha5  : string "        |_|   |__ _||__  ||__ _|        "
+tela0Linha6  : string "                    |___/               "
+tela0Linha7  : string "                                        "
+tela0Linha8  : string "                 _                      "
+tela0Linha9  : string "              __| | __ _ ___            "
+tela0Linha10 : string "             / _` |/ _` / __|           "
+tela0Linha11 : string "            | (_| | (_| |__ |           "
+tela0Linha12 : string "             |__,_||__,_|__/            "
+tela0Linha13 : string "                                        "
+tela0Linha14 : string "   ____                  _              "
+tela0Linha15 : string "  | __ )  __ _ _ __ __ _| |_ __ _ ___   "
+tela0Linha16 : string "  |  _ | / _` | '__/ _` | __/ _` / __|  "
+tela0Linha17 : string "  | |_) ) (_| | |  |(_| | || (_| |__ |  "
+tela0Linha18 : string "  |____/ |__,_|_|  |__,_||__|__,_|___/  "
 tela0Linha19 : string "                                        "
 tela0Linha20 : string "                                        "
 tela0Linha21 : string "                                        "
@@ -1121,10 +1152,42 @@ tela0Linha22 : string "                                        "
 tela0Linha23 : string "                                        "
 tela0Linha24 : string "                                        "
 tela0Linha25 : string "                                        "
-tela0Linha26 : string "       Pressione ENTER para jogar       "
-tela0Linha27 : string "                                        "
+tela0Linha26 : string "                                        "
+tela0Linha27 : string "     Pressione ENTER para continuar!    "
 tela0Linha28 : string "                                        "
 tela0Linha29 : string "                                        "
+
+tela1Linha0  : string "                                        "
+tela1Linha1  : string "                                        "
+tela1Linha2  : string "    Toda vez que eu chego em casa       "
+tela1Linha3  : string "    a barata da vizinha ta na minha     "
+tela1Linha4  : string "                cama...                 "
+tela1Linha5  : string "                                        "
+tela1Linha6  : string "    Me diz jogador, o que voce vai      "
+tela1Linha7  : string "               fazer?                   "
+tela1Linha8  : string "                                        "
+tela1Linha9  : string "    Vou pegar um chinelo para me        "
+tela1Linha10 : string "              defender!                 "
+tela1Linha11 : string "                                        "
+tela1Linha12 : string "    Use o A e D para se mover e         "
+tela1Linha13 : string "    ESPACO para jogar seu chinelo.      "
+tela1Linha14 : string "                                        "
+tela1Linha15 : string "                                        "
+tela1Linha16 : string "                                        "
+tela1Linha17 : string "                                        "
+tela1Linha18 : string "                                        "
+tela1Linha19 : string "                                        "
+tela1Linha20 : string "                                        "
+tela1Linha21 : string "        Pressione J para jogar          "
+tela1Linha22 : string "                                        "
+tela1Linha23 : string "                                        "
+tela1Linha24 : string "                                        "
+tela1Linha25 : string "                                        "
+tela1Linha26 : string "                                        "
+tela1Linha27 : string "                                        "
+tela1Linha28 : string "                                        "
+tela1Linha29 : string "                                        "
+
 
 ; Game Over
 gameOverLinha0  : string "                                        "
@@ -1134,10 +1197,10 @@ gameOverLinha3  : string "                                        "
 gameOverLinha4  : string "                                        "
 gameOverLinha5  : string "                                        "
 gameOverLinha6  : string "                                        "
-gameOverLinha7  : string "                                        "
+gameOverLinha7  : string "            G A M E  O V E R            "
 gameOverLinha8  : string "                                        "
-gameOverLinha9  : string "            G A M E  O V E R            "
-gameOverLinha10 : string "                                        "
+gameOverLinha9  : string "         Voce deu uma chinelada         "
+gameOverLinha10 : string "             na barata dela!            "
 gameOverLinha11 : string "                                        "
 gameOverLinha12 : string "                                        "
 gameOverLinha13 : string "                                        "
