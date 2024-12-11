@@ -3,6 +3,22 @@ Para o presente trabalho, utilizamos o template .c do Simple Simulator do Profes
 A máquina de controle, por sua vez, opera num switch case que transiciona entre ciclos de Busca, Decodificação e Execução, além de ciclos complementares como ciclo de Reset e Halt. 
 Dentro de cada ciclo, utilizamos um switch case para tratar as instruções chamadas em cada estado. 
 
+
+## Sumário
+- [Estrutura do Código](#estrutura-do-código)
+  - [Definições de Estados](#definições-de-estados)
+  - [Decodificação de Instruções](#decodificação-de-instruções)
+  - [Instruções utilizadas](#instruções-utilizadas)
+  - [Operações Auxiliares](#operações-auxiliares)
+  - [Detalhes dos Multiplexadores](#detalhes-dos-multiplexadores)
+  - [Operações da ULA](#operações-da-ula)
+- [Processamento de Arquivo CPU.MIF](#processamento-de-arquivo-cpu-mif)
+  - [Funcionalidades](#funcionalidades)
+    - [1. Função `le_arquivo`](#1-função-le_arquivo)
+    - [2. Função `processa_linha`](#2-função-processa_linha)
+    - [3. Função `pega_pedaco`](#3-função-pega_pedaco)
+
+
 ## [Estrutura do Código](#estrutura-do-código)
 
 ### [Definições de Estados](#definições-de-estados)
