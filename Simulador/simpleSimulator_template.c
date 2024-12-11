@@ -92,7 +92,7 @@ Do todos os comandos...
 #define POP	6       // "000110"; -- POP Rx  / POP FR   -- SP++ | Rx <- M[SP]  / FR <- M[SP]	  			  : b6=Rx/FR: 0/1		Format: < inst(6) | Rx(3) | b6 | xxxxxx >
 
 
-// Control Instructions:
+// Control Instructions
 #define NOP	0       // "000000"; -- NOP            -- Do Nothing	 						Format: < inst(6) | xxxxxxxxxx >
 #define HALT 15     // "001111"; -- HALT           -- Stop Here								Format: < inst(6) | xxxxxxxxxx >
 #define SETC 8      // "001000"; -- CLEARC / SETC  -- Set/Clear Carry: b9 = 1-set; 0-clear	Format: < inst(6) | b9 | xxxxxxxxx >
