@@ -21,6 +21,6 @@ Recomendamos utilizar o simulador do processador (https://proc.giroto.dev/). Par
 
 ![alt text](img/imports.jpg)
 
-![alt text](img/buid.png)
+![alt text](img/buid.jpg)
 
-![alt text](img/run.png)
+![alt text](img/run.jpg)
