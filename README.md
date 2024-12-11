@@ -14,3 +14,4 @@ Recomendamos utilizar o simulador do processador (https://proc.giroto.dev/). Par
 ### Guia de imagens
 - Acessar o site e importar os arquivos `.asm` em file e `.mif` em charmap
 ![Texto alternativo](\img\imports.jpg " ")
+![alt text](img/imports.jpg)
