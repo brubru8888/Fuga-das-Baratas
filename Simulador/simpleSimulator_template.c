@@ -3,9 +3,9 @@
 /*
 Perguntas:
 1) O que tenho que fazer?
-2) Onde come�a?
+2) Onde começa?
 3) Onde Termina?
-4) Qual � o caminho?
+4) Qual é o caminho?
 Do todos os comandos...
 5) Acabou??
 6) E o PC ????????
@@ -37,9 +37,9 @@ Do todos os comandos...
 //#define sSP 3
 #define sTECLADO 4
 
-// Selecao do Mux3 --> E� so� colocar: 0, 1, 2 ... 7  para selecionar os Registradores
+// Selecao do Mux3 --> E´ so´ colocar: 0, 1, 2 ... 7  para selecionar os Registradores
 
-// Selecao do Mux4 --> E� so� colocar: 0, 1, 2 ... 7  para selecionar os Registradores ou 8 para entrar o nr. 1
+// Selecao do Mux4 --> E´ so´ colocar: 0, 1, 2 ... 7  para selecionar os Registradores ou 8 para entrar o nr. 1
 
 // Selecao do Mux5
 //#define sPC 0
@@ -58,14 +58,10 @@ Do todos os comandos...
 #define STOREI 61 // "111101"; -- STORE Rx Ry  -- M[Rx] <- Ry	Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
 #define MOV	51        // "110011"; -- MOV Rx Ry    -- Rx <- Ry	  	Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
 
-/*Nossas funcoes*/
-#define LOADALL 57    // "111001"; 
-#define LOADALLN 58   // "111010";
-#define LOADALLI 59   // "111011";
 
 // I/O Instructions:
 #define OUTCHAR	50  // "110010"; -- OUTCHAR Rx Ry -- Video[Ry] <- Char(Rx)								Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
-#define INCHAR 53   // "110101"; -- INCHAR Rx     -- Rx[7..0] <- KeyPressed	Rx[15..8] <- 0�s  Format: < inst(6) | Rx(3) | xxxxxxx >
+#define INCHAR 53   // "110101"; -- INCHAR Rx     -- Rx[7..0] <- KeyPressed	Rx[15..8] <- 0´s  Format: < inst(6) | Rx(3) | xxxxxxx >
 
 
 // Aritmethic Instructions(All should begin wiht "10"):
@@ -76,6 +72,7 @@ Do todos os comandos...
 #define DIV	35      // "100011"; -- DIV Rx Ry Rz 			-- Rx <- Ry / Rz / Rx <- Ry / Rz + C  -- b0=Carry		Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| C >
 #define INC	36      // "100100"; -- INC Rx / DEC Rx                 		-- Rx <- Rx + 1 / Rx <- Rx - 1  -- b6= INC/DEC : 0/1	Format: < inst(6) | Rx(3) | b6 | xxxxxx >
 #define LMOD 37     // "100101"; -- MOD Rx Ry Rz   			-- Rx <- Ry MOD Rz 	  	Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| x >
+
 
 // Logic Instructions (All should begin wiht "01"):
 #define LOGIC 1
@@ -120,7 +117,7 @@ Do todos os comandos...
 #include <math.h>
 
 // kbhit() TODO: deletar
-#include <termios.h>
+#include <windows.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -136,7 +133,7 @@ typedef struct _resultadoUla{
 //  Processa dados do Arquivo CPU.MIF
 void le_arquivo(void);
 
-//processa uma linha completa e retorna o n�mero codificado
+//processa uma linha completa e retorna o número codificado
 int processa_linha(char* linha); 
 
 // Funcao que separa somente o pedaco de interesse do IR;
@@ -151,35 +148,45 @@ unsigned int _rotr(const unsigned int value, int shift);
 // ULA
 ResultadoUla ULA(unsigned int x, unsigned int y, unsigned int OP, int carry);
 
-int kbhit(void)
-{
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
- 
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
- 
-  ch = getchar();
- 
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
- 
-  if(ch != EOF)
-  {
-    ungetc(ch, stdin);
-    return 1;
-  }
- 
-  return 0;
+int kbhit(void) {
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    if (hStdin == INVALID_HANDLE_VALUE) {
+        return 0; // Erro ao obter o handle do console
+    }
+
+    DWORD mode;
+    if (!GetConsoleMode(hStdin, &mode)) {
+        return 0; // Erro ao obter o modo do console
+    }
+
+    // Desabilita o modo canônico e o eco
+    DWORD newMode = mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+    if (!SetConsoleMode(hStdin, newMode)) {
+        return 0; // Erro ao definir o modo do console
+    }
+
+    // Verifica se uma tecla foi pressionada
+    INPUT_RECORD ir;
+    DWORD numRead;
+    int keyPressed = 0;
+
+    while (PeekConsoleInput(hStdin, &ir, 1, &numRead) && numRead > 0) {
+        if (ir.EventType == KEY_EVENT && ir.Event.KeyEvent.bKeyDown) {
+            keyPressed = 1; // Uma tecla foi pressionada
+            break;
+        }
+        // Remove o evento do buffer
+        ReadConsoleInput(hStdin, &ir, 1, &numRead);
+    }
+
+    // Restaura o modo original do console
+    SetConsoleMode(hStdin, mode);
+
+    return keyPressed;
 }
 
-int FR[16] = {0};  // Flag Register: <...|Negativo|StackUnderflow|StackOverflow|DivByZero|ArithmeticOverflow|carry|zero|equal|lesser|greater>
 
+int FR[16] = {0};  // Flag Register: <...|Negativo|StackUnderflow|StackOverflow|DivByZero|ArithmeticOverflow|carry|zero|equal|lesser|greater>
 
 int main()
 {
@@ -189,9 +196,8 @@ int main()
 	int LoadPC=0, IncPC=0, LoadIR=0, LoadSP=0, IncSP=0, DecSP=0, LoadMAR=0, LoadFR=0;
 	int M1=0, M2=0, M3=0, M4=0, M5=0, M6=0;
 	int selM1=0, selM2=0, selM3=0, selM4=0, selM5=0, selM6=0;
-
 	int LoadReg[8] = {0};
-	int carry=0;// Flag do IR que indica se a ULA vai fazer opera��o com carry ou n�o 
+	int carry=0;// Flag do IR que indica se a ULA vai fazer operação com carry ou não 
 	int opcode=0;
 	int temp=0;
 	unsigned char state=0; // reset
@@ -202,9 +208,9 @@ int main()
 	le_arquivo();
 
 inicio:
-    printf("PROCESSADOR ICMC  - Menu:\n");
-    printf("                          'r' goto inicio...\n");
-    printf("                          'q' goto fim...\n\n");
+	printf("PROCESSADOR ICMC  - Menu:\n");
+	printf("                          'r' goto inicio...\n");
+	printf("                          'q' goto fim...\n\n");
 	printf("Rodando...\n");
 
 	state = STATE_RESET;
@@ -239,15 +245,7 @@ loop:
 	rz = pega_pedaco(IR,3,1);
 	
 	// Coloca valor do Mux2 para o registrador com Load
-	//if(LoadReg[rx]) reg[rx] = M2;
-    if(LoadReg[0]) reg[0] = M2;
-    if(LoadReg[1]) reg[1] = M2;
-    if(LoadReg[2]) reg[2] = M2;
-    if(LoadReg[3]) reg[3] = M2;
-    if(LoadReg[4]) reg[4] = M2;
-    if(LoadReg[5]) reg[5] = M2;
-    if(LoadReg[6]) reg[6] = M2;
-    if(LoadReg[7]) reg[7] = M2;
+	if(LoadReg[rx]) reg[rx] = M2;
 
 	// Operacao de Escrita da Memoria
 	if (RW == 1) MEMORY[M1] = M5;
@@ -376,6 +374,17 @@ loop:
 					state=STATE_EXECUTE;
 					break;
 
+				case STORE:
+					//MAR = MEMORY[PC];
+					//PC++;
+					selM1 = sPC;
+					RW = 0;
+					LoadMAR = 1; 
+					IncPC = 1; 
+					// -----------------------------
+					state=STATE_EXECUTE;
+					break;
+
 				case LOADI:
 					// reg[rx] = MEMORY[reg[ry]];
 					selM4 = ry;
@@ -385,17 +394,6 @@ loop:
 					LoadReg[rx] = 1;
 					// -----------------------------
 					state=STATE_FETCH;
-					break;
-
-				case STORE:
-					//MAR = MEMORY[PC];
-					//PC++;
-					selM1 = sPC;
-					RW = 0;
-					LoadMAR = 1; 
-					IncPC = 1;   
-					// -----------------------------
-					state=STATE_EXECUTE;
 					break;
 
 				case STOREI:
@@ -410,24 +408,9 @@ loop:
 					break;
 
 				case MOV:
-					switch(pega_pedaco(IR,1,0))
-					{ case 0:
-						// reg[rx] = reg[ry];
-						selM4 = ry;
-						selM2 = sM4;
-						LoadReg[rx] = 1;
-						break;
-					  case 1:
-						// reg[rx] = SP;
-						selM2 = sSP;
-						LoadReg[rx] = 1;
-						break;
-						default:
-						// SP = reg[rx];
-						selM4 = rx;
-						LoadSP = 1;
-						break;
-					}
+					selM4 = ry;
+					selM2 = sM4;
+					LoadReg[rx] = 1;
 					// -----------------------------
 					state=STATE_FETCH;
 					break;
@@ -444,7 +427,7 @@ loop:
 					// reg[rx] = reg[ry] + reg[rz]; // Soma ou outra operacao
 					selM3 = ry;
 					selM4 = rz;
-					OP = pega_pedaco(IR,15,10);
+					OP = opcode;
 					carry = pega_pedaco(IR,0,0);
 					selM2 = sULA;
 					LoadReg[rx] = 1;
@@ -590,7 +573,6 @@ loop:
 				case POP:
 					//SP++;
 					IncSP = 1;
-
 					// -----------------------------
 					state=STATE_EXECUTE;
 					break;
@@ -624,49 +606,6 @@ loop:
 					state=STATE_FETCH;
 					break;
 
-				case LOADALL:
-					selM1 = sPC;
-					RW = 0;
-					LoadMAR = 1; 
-					IncPC = 1;
-					// -----------------------------
-					state=STATE_EXECUTE;
-					break;
-                /*Uma de nossas funções*/
-				case LOADALLN:
-					selM1 = sPC;
-					RW = 0;
-					selM2 = sDATA_OUT;
-					LoadReg[0] = 1;
-					LoadReg[1] = 1;
-					LoadReg[2] = 1;
-					LoadReg[3] = 1;
-					LoadReg[4] = 1;
-					LoadReg[5] = 1;
-					LoadReg[6] = 1;
-					LoadReg[7] = 1;
-					IncPC = 1;
-					// -----------------------------
-					state=STATE_FETCH;
-					break;
-                /*Uma de nossas funções*/
-				case LOADALLI:
-					selM4 = ry;
-					selM1 = sM4;
-					RW = 0;
-					selM2 = sDATA_OUT;
-					LoadReg[0] = 1;
-					LoadReg[1] = 1;
-					LoadReg[2] = 1;
-					LoadReg[3] = 1;
-					LoadReg[4] = 1;
-					LoadReg[5] = 1;
-					LoadReg[6] = 1;
-					LoadReg[7] = 1;
-					// -----------------------------
-					state=STATE_FETCH;
-					break;
-
 				default:
 
 					state=STATE_FETCH;
@@ -681,20 +620,20 @@ loop:
 			switch(opcode){
 				case LOAD:
 					//reg[rx] = MEMORY[MAR];
-					selM1 = sMAR;
-					RW = 0;
-					selM2 = sDATA_OUT;
-					LoadReg[rx] = 1;
+					selM1=sMAR;
+					RW=0;
+					selM2=sDATA_OUT;
+					LoadReg[rx]=1;
 					// -----------------------------
 					state=STATE_FETCH;
 					break;
 
 				case STORE:
 					//MEMORY[MAR] = reg[rx];
-					selM1 = sMAR;
-					RW = 1;
-					selM3 = rx;
-					selM5 = sM3;
+					selM3=rx;
+					selM5=sM3;
+					selM1=sMAR;
+					RW=1;
 					// -----------------------------
 					state=STATE_FETCH;
 					break; 
@@ -730,23 +669,6 @@ loop:
 					LoadPC = 1;
 					// -----------------------------
 					state=STATE_EXECUTE2;
-					break;
-               
-                /*Uma de nossas funcoes*/
-				case LOADALL:
-					selM1 = sMAR;
-					RW = 0;
-					selM2 = sDATA_OUT;
-					LoadReg[0] = 1;
-					LoadReg[1] = 1;
-					LoadReg[2] = 1;
-					LoadReg[3] = 1;
-					LoadReg[4] = 1;
-					LoadReg[5] = 1;
-					LoadReg[6] = 1;
-					LoadReg[7] = 1;
-					// -----------------------------
-					state=STATE_FETCH;
 					break;
 			}
 
@@ -785,7 +707,7 @@ loop:
 
 	if(M1 > (TAMANHO_MEMORIA)) {
 		M1 = 0;
-		printf("  \n\nUltrapassou limite da memoria, coloque um jmp no fim do c�digo\n");
+		printf("  \n\nUltrapassou limite da memoria, coloque um jmp no fim do código\n");
 		exit(1);
 	}
 
@@ -794,7 +716,7 @@ loop:
 
 	// Selecao do Mux3  --> Tem que vir antes da ULA e do M5
 	// Converte o vetor FR para int
-	// TODO talvez fazer isso depois da opera��o da ula?
+	// TODO talvez fazer isso depois da operação da ula?
 	temp = 0;
 	for(i=16; i--; )        
 		temp = temp + (int) (FR[i] * (pow(2.0,i))); 
@@ -830,9 +752,9 @@ fim:
 void le_arquivo(void){
 	FILE *stream;   // Declara ponteiro para o arquivo
 	int i, j;
-	int processando = 0; // Flag para varreo o arquivo cpuram.mif e tirar o cabecalho
+	int processando = 0; // Flag para varreo o arquivo CPURAM.mif e tirar o cabecalho
 
-	if ( (stream = fopen("cpuram.mif","r")) == NULL)  // Abre o arquivo para leitura
+	if ( (stream = fopen("TestaCPU.mif","r")) == NULL)  // Abre o arquivo para leitura
 	{
 		printf("Error: File not OPEN!");
 		exit(1);
@@ -878,7 +800,7 @@ void le_arquivo(void){
 	fclose(stream);  // Nunca esqueca um arquivo aberto!!
 }
 
-//processa uma linha completa e retorna o n�mero codificado
+//processa uma linha completa e retorna o número codificado
 //retorna -1 em caso de erro
 //NOTA: Assume radix=BIN no arquivo CPURAM.MIF
 int processa_linha(char* linha) {
@@ -908,11 +830,12 @@ int pega_pedaco(int ir, int a, int b) {
 
 	// Separa somente o pedaco de interesse;
 
-	/* Essa opera��o retira o numero do registrador entre o a-b bit
-	   da instru��o, realizando um right-shift de b posi��es
-	   e aplicando uma m�scara de n-bits, onde n = nr. 1's entre a e b
+	/* Essa operação retira o numero do registrador entre o a-b bit
+	   da instrução, realizando um right-shift de b posições
+	   e aplicando uma máscara de n-bits, onde n = nr. 1's entre a e b
 	   Obs.:    & - AND
 	   >> - right-shift
+
 	   ex.: Rx = 0x0007 & IR >> 7;
 	   */
 	pedaco = ((pow(2,(a-b+1)))-1);
