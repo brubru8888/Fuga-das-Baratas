@@ -20,5 +20,7 @@ Recomendamos utilizar o simulador do processador (https://proc.giroto.dev/). Par
 - Se divirta!
 
 ![alt text](img/imports.jpg)
+
 ![alt text](img/buid.png)
+
 ![alt text](img/run.png)
