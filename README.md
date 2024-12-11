@@ -2,7 +2,6 @@
 Trabalho da matéria SSC0513, contendo o jogo feito em Assembly
 
 
-
 ## Como jogar? 
 Recomendamos utilizar o simulador do processador (https://proc.giroto.dev/). Para isso, siga os passos a seguir: 
 1. Baixe os arquivo `charmap.mif` e `fuga_das_baratas.asm` ;
