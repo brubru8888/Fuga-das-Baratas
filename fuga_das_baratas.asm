@@ -4,8 +4,8 @@ jmp main
 
 ; Charmap
 
-;	nave 4 partes
-;-- # --> N1
+;	pessoa 4 partes
+;-- # --> P1
 ;	280	 : 	 00000001;
 ;	281  :   00000001;
 ;	282  :   00000001;
@@ -15,7 +15,7 @@ jmp main
 ;	286  :   00010111;
 ;	287  :   01111111;
 ;
-;-- $ --> N2
+;-- $ --> P2
 ;	288  :   10000000;
 ;	289  :   10000000;
 ;	290  :   10000000;
@@ -25,7 +25,7 @@ jmp main
 ;	294  :   11101000;
 ;	295  :   11111110;
 ;
-;-- % --> N3
+;-- % --> P3
 ;	296  :   01111111;
 ;	297  :   00000011;
 ;	297  :   00000001;
@@ -35,7 +35,7 @@ jmp main
 ;	302  :   00001100;
 ;	303  :   00010000;
 ;
-;-- & --> N4
+;-- & --> P4
 ;	304  :   11111110;
 ;	305  :   11000000;
 ;	306  :   10000000;
@@ -45,7 +45,7 @@ jmp main
 ;	310  :   00110000;
 ;	311  :   00001000;
 
-;-- * --> alien
+;-- * --> barata
 ;	336  :	 00000000;
 ;	337  :	 00111100;
 ;	338  :   01000010;
@@ -60,18 +60,18 @@ jmp main
 score: var #1 			; Pontos
 vidas: var #1 			; Vidas
 
-posNave1: var #1		; Coordenada N1
-posNave2: var #1 		; Coordenada N2
-flagTiroNave: var #1    ; Flag se nave atirou
-posTiroNave: var #1     ; Posição tiro nave (armazena a coordenada da esqueda, na hora de imprimir é somado 1 para imprimir o da direita)
+posPessoa1: var #1		; Coordenada P1
+posPessoa2: var #1 		; Coordenada P2
+flagTiroPessoa: var #1    ; Flag se pessoa atirou
+posTiroPessoa: var #1     ; Posição tiro pessoa (armazena a coordenada da esqueda, na hora de imprimir é somado 1 para imprimir o da direita)
 
-posAlien1: var #1 		; Coordenada A1
-posAlien2: var #1 		; Coordenada A2
-flagTiroAlien: var #1   ; Flag se alien atirou
-posTiroAlien: var #1 	; Posição tiro nave (armazena a coordenada da esqueda, na hora de imprimir é somado 1 para imprimir o da direita)
+posbarata1: var #1 		; Coordenada A1
+posbarata2: var #1 		; Coordenada A2
+flagTirobarata: var #1   ; Flag se barata atirou
+posTirobarata: var #1 	; Posição tiro pessoa (armazena a coordenada da esqueda, na hora de imprimir é somado 1 para imprimir o da direita)
 
 IncRand: var #1			; Incremento para circular na Tabela de nr. Randomicos
-Rand : var #30			; Tabela de nr. Randomicos entre 0 - 1. Para movimentação do alien.
+Rand : var #30			; Tabela de nr. Randomicos entre 0 - 1. Para movimentação do barata.
 	static Rand + #0, #1
 	static Rand + #1, #1
 	static Rand + #2, #0
@@ -105,54 +105,73 @@ Rand : var #30			; Tabela de nr. Randomicos entre 0 - 1. Para movimentação do 
 	static Rand + #29, #1
 
 gameOver:
+	
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+
 	loadn r0, #0 					; Posição do começo da tela
 	loadn r1, #gameOverLinha0 		; Endereço da tela na memória
 	call ImprimeTela 				; imprime tela
-
 	
 	loadn r1, #582  		; Posição para imprimir os pontos
 	load r0, score 			; r0 = score
-	loadn r2, #100 			; r2 = 100
-	div r3, r0, r2 			; r3 = r0 / r2    ->   pega o dígito da centena
-	loadn r4, #48 			; r4 = 48
-	add r3, r3, r4 			; r3 += r4  ->  converte o dígito para o seu valor na tabela ASCII, por exemplo o dígito 5 é representado pelo número 53 na tabela
-	outchar r3, r1 			; imprime a centena
-	sub r3, r3, r4 			; r3 -= r2  ->  volta do valor da tabela ASCII para o dígito
-	mul r3, r3, r2 			; r3 *= r2  ->  multiplica o dígita da centena por 100
-	sub r0, r0, r3 			; r0 -= r3  ->  remove as centenas
 
-							; EXEMPLO:
-							; 523 -> 523 / 100 = 5 -> dígito da centena = 5 -> imprime o 5 -> subtrai 5 * 100 do total de pontos ->
-							; -> 523 - 5 * 100 = 23 -> segue processo análogo para dezena e unidade
-
-	; Impressão da dezena
-	inc r1
+	; Impressão da dezena do score
 	loadn r2, #10 
-	div r3, r0, r2 
-	loadn r4, #48
-	add r3, r3, r4
+	div r3, r0, r2          ; Calcula a dezena (r0 / 10) e salva em r3.
+	loadn r4, #48           ; Carrega ASCII de '0' em r4.
+	add r3, r3, r4          ; Converte a casa decimal para ASCII.
 	outchar r3, r1
-	sub r3, r3, r4
-	mul r3, r3, r2
-	sub r0, r0, r3
+	sub r3, r3, r4          ; Restaura o valor numérico da dezena.
+	mul r3, r3, r2          ; Calcula o valor decimal da dezena.
+	sub r0, r0, r3          ; Atualiza r0 com as unidades restantes.
 
-	; Impressão da unidade
+	; Impressão da unidade do score
 	inc r1
 	add r0, r0, r4
 	outchar r0, r1
 
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+
+
 	gameOverLerCaractere:
 	inchar r0 			; le tecla
 
-	loadn r1, #13 		; r1 = 13 = ENTER
+	loadn r1, #106 		; r1 = 106 = j
 	cmp r0,r1
-	jeq main 			; se ENTER foi pressionado, quer jogar denovo, então pula pra main
+	jeq menu 			; se j foi pressionado, quer jogar denovo, então pula pra main
 	
-	loadn r1, #' ' 		; r1 = SPACE
+	loadn r1, #32 		; r1 = SPACE
 	cmp r0, r1
 	jeq fim  			; se SPACE foi pressionado, quer sair, então pula pro fim
 
 	jmp gameOverLerCaractere  ; se nenhuma das teclas de interesse foi pressionada, volta pro gameOverLerCaractere
+
+gameWin:
+	loadn r0, #0 					; Posição do começo da tela
+	loadn r1, #gameWinLinha0 		; Endereço da tela na memória
+	call ImprimeTela 				; imprime tela
+
+
+	gameWinLerCaractere:
+	inchar r0 			; le tecla
+
+	loadn r1, #106 		; r1 = 106 = j
+	cmp r0,r1
+	jeq menu 			; se j foi pressionado, quer jogar denovo, então pula pra main
+	
+	loadn r1, #32 		; r1 = SPACE
+	cmp r0, r1
+	jeq fim  			; se SPACE foi pressionado, quer sair, então pula pro fim
+
+	jmp gameWinLerCaractere  ; se nenhuma das teclas de interesse foi pressionada, volta pro gameOverLerCaractere
 
 menu:
 	push r1
@@ -188,11 +207,11 @@ instrucoes:
 	loadn r1, #tela1Linha0 ; Endereco onde comeca a primeira linha da tela
 	loadn r2, #0  		   ; Cor branca
 	call ImprimeTela
-	loadn r2, #106 
+	loadn r2, #106         ;Valor do j
 
 	lerTecla2:
-	inchar r1
-	cmp r1, r2
+	inchar r1             ;Pega a entrada do jogador
+	cmp r1, r2            ;Compara se a entrada do jogador é igual a j
 	jne lerTecla2
 
 	call ApagaTela
@@ -209,25 +228,25 @@ instrucoes:
 main:
  	call ApagaTela   		; Limpa a tela
 
-	loadn r0, #5 			
+	loadn r0, #1			
 	store vidas, r0 		; Quantidade de vidas
 
 	loadn r0, #0
 	store score, r0 		; Zera os pontos 
 
-	loadn r0, #1059			; Posição nave1
-	store posNave1, r0
-	loadn r0, #1099			; Posição nave2
-	store posNave2, r0
+	loadn r0, #1059			; Posição Pessoa1
+	store posPessoa1, r0
+	loadn r0, #1099			; Posição Pessoa2
+	store posPessoa2, r0
 	loadn r0, #0
-	store flagTiroNave, r0 	; Zera flag de tiro da nave
+	store flagTiroPessoa, r0 	; Zera flag de tiro da pessoa
 
-	loadn r0, #19 			; Posição alien1
-	store posAlien1, r0
+	loadn r0, #19 			; Posição barata1
+	store posbarata1, r0
 	loadn r0, #59
-	store posAlien2, r0 	; Posição alien2
+	store posbarata2, r0 	; Posição barata2
 	loadn r0, #0
-	store flagTiroAlien, r0 ; Zera flag de tiro do alien
+	store flagTirobarata, r0 ; Zera flag de tiro do barata
 	
 	loadn r0, #0 			; Contador para os mods = 0
 	loadn r2, #0 			; Para verificar se r0 % x == 0
@@ -241,41 +260,41 @@ main:
 loop:
 	; Os mods servem para executar as ações somente nos ciclos em que o contador é múltiplo de algum número.
 	; Se r0 % 10 == 0
-	; movimentação da nave
+	; movimentação da pessoa
 	loadn r1, #10
 	mod r1, r0, r1
 	cmp r1, r2
-	ceq nave
+	ceq pessoa
 	
 	; Se r0 % 2 == 0
-	; tiro da nave
+	; tiro da pessoa
 	loadn r1, #2
 	mod r1, r0, r1
 	cmp r1, r2
-	ceq tiroNave
+	ceq tiroPessoa
 
 	; Se r0 % 30 == 0
-	; movimentação do alien
+	; movimentação do barata
 	loadn r1, #30
 	mod r1, r0, r1
 	cmp r1, r2
-	ceq alien
+	ceq barata
 
 	; Se r0 % 250 == 0
-	; frequência de tiro do alien 
+	; frequência de tiro do barata 
 	loadn r1, #250
 	mod r1, r0, r1
 	cmp r1, r2
-	ceq alienAtirou
+	ceq barataAtirou
 
 	; Se r0 % 3 == 0
-	; tiro do alien
+	; tiro do barata
 	loadn r1, #3
 	mod r1, r0, r1
 	cmp r1, r2
-	ceq tiroAlien
+	ceq tirobarata
 
-	call comparaPosicaoTiroNave		; compara a posição do tiro da nave com o alien
+	call comparaPosicaoTiroPessoa		; compara a posição do tiro da pessoa com o barata
 
 	call imprimeValoresHud 			; imprime os valores dos pontos e das vidas
 
@@ -285,9 +304,21 @@ loop:
 	load r1, vidas
 	cmp r0, r1
 	jeq gameOver 		; if (vidas == 0) gameover 
-	pop r1 				; protege r1
-	pop r0 				; protege r0
+
+	pop r1
+	pop r0
+
+	push r0 			; protege r0
+	push r1 			; protege r1
 	
+	loadn r0, #10      ; Carrega 10 em r0
+	load r1, score     ; Carrega o valor de score em r1
+	cmp r1, r0         ; Compara score com 10
+	jeg gameWin        ; Salta para gameWin se score >= 10
+
+	pop r1             ; Restaura r1
+	pop r0             ; Restaura r0
+
 	call Delay 				; Delay para as coisas não irem tão rápido
 	inc r0					; Incrementa contador dos mods - r0++
 	jmp loop
@@ -314,27 +345,19 @@ imprimeValoresHud:
 	push r3
 	push r4
 
-	; imprime as vidas, valores somente de 0 a 9
+	; imprime as vidas, valores somente de 0 a 3
 	load r0, vidas 	 	; r0 = vidas
 	loadn r1, #48 		
 	add r0, r0, r1 		; converte pra valor do dígito na tabela ASCII
-	loadn r1, #1198  	; lugar da tela para imprimir
+	loadn r1, #1168  	; lugar da tela para imprimir
 	outchar r0, r1 		; imprime
 
 	; imprime os pontos
 	; mesma lógica explicada na função gameOver no começo do código
-	loadn r1, #1168
+	loadn r1, #1197
 	load r0, score
-	loadn r2, #100
-	div r3, r0, r2
-	loadn r4, #48
-	add r3, r3, r4
-	outchar r3, r1
-	sub r3, r3, r4
-	mul r3, r3, r2
-	sub r0, r0, r3
 
-	inc r1
+	;impressão do score
 	loadn r2, #10
 	div r3, r0, r2
 	loadn r4, #48
@@ -357,28 +380,28 @@ imprimeValoresHud:
 	rts
 
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-COLISAO-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-comparaPosicaoTiroNave:
+comparaPosicaoTiroPessoa:
 	push r0 
 	push r1 
 	
-	load r0, posTiroNave	; pos tiro 1 (esquerda)
-	load r1, posAlien1		; pos alien 1 (esquerda)
-	cmp r0, r1 				; compara tiro 1 com alien 1
+	load r0, posTiroPessoa	; pos tiro 1 (esquerda)
+	load r1, posbarata1		; pos barata 1 (esquerda)
+	cmp r0, r1 				; compara tiro 1 com barata 1
 	ceq somaPonto
 	
-	inc r1 					; pos alien 2 (direita)
+	inc r1 					; pos barata 2 (direita)
 	
-	cmp r0, r1 				; compara tiro 1 com alien 2
+	cmp r0, r1 				; compara tiro 1 com barata 2
 	ceq somaPonto
 	
 	inc r0					; pos tiro 2 (direita)
 	
-	cmp r0, r1 				; compara tiro2 com alien 2
+	cmp r0, r1 				; compara tiro2 com barata 2
 	ceq somaPonto
 	
-	dec r1					; pos alien 1 (esquerda)
+	dec r1					; pos barata 1 (esquerda)
 	
-	cmp r0, r1 				; compara tiro2 com alien 1
+	cmp r0, r1 				; compara tiro2 com barata 1
 	ceq somaPonto
 	
 	pop r1 
@@ -398,8 +421,8 @@ somaPonto:
 	inc r0 					; incrementa 1
 	store score, r0 		; armazena de volta na memória
 	
-	loadn r0, #0			; reseta a posição do tiro da nave
-	store posTiroNave, r0 	; evita que fique somando infinitamente
+	loadn r0, #0			; reseta a posição do tiro da pessoa
+	store posTiroPessoa, r0 	; evita que fique somando infinitamente
 	
 	pop r1 
 	pop r0 
@@ -417,59 +440,59 @@ decVidas:
 
 	rts
 
-; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-NAVE-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-nave:
-	call naveDesenhar
-	call naveMover
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-pessoa-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pessoa:
+	call PessoaDesenhar
+	call PessoaMover
 	
 	rts
 
-naveDesenhar:
-	; A nave é composta por 4 caracteres
-	;			     N1N3
-	;				 N2N4
+PessoaDesenhar:
+	; A pessoa é composta por 4 caracteres
+	;			     P1P3
+	;				 P2P4
 
 	push r0
 	push r1
 
-	loadn r0, #'#'  	; r0 = caractere nave1
-	load r1, posNave1	; r1 = posição nave1
-	outchar r0, r1		; desenha nave1
+	loadn r0, #'#'  	; r0 = caractere Pessoa1
+	load r1, posPessoa1	; r1 = posição Pessoa1
+	outchar r0, r1		; desenha Pessoa1
 
-	inc r0				; r0++ (caractere nave3)
-	inc r1				; r1++ (posição nave3)
-	outchar r0, r1		; desenha nave3
+	inc r0				; r0++ (caractere Pessoa3)
+	inc r1				; r1++ (posição Pessoa3)
+	outchar r0, r1		; desenha Pessoa3
 
-	inc r0				; r0++ (caractere nave2)
-	load r1, posNave2	; r1++ (posição nave2)
-	outchar r0, r1		; desenha nave2
+	inc r0				; r0++ (caractere Pessoa2)
+	load r1, posPessoa2	; r1++ (posição Pessoa2)
+	outchar r0, r1		; desenha Pessoa2
 
-	inc r0				; r0++ (caractere nave4)
-	inc r1				; r1++ (posição nave4)
-	outchar r0, r1		; desenha nave4
+	inc r0				; r0++ (caractere Pessoa4)
+	inc r1				; r1++ (posição Pessoa4)
+	outchar r0, r1		; desenha Pessoa4
 
 	pop r1
 	pop r0
 
 	rts
 
-naveApagar:
+PessoaApagar:
 	push r0
 	push r1
 	push r2
 	
 	loadn r0, #' '			; r0 = ' '
-	load r1, posNave1		; r1 = posição nave1
-	load r2, posNave2		; r2 = posição nave2
+	load r1, posPessoa1		; r1 = posição Pessoa1
+	load r2, posPessoa2		; r2 = posição Pessoa2
 
-	outchar r0, r1			; imprime ' ' em N1
-	outchar r0, r2			; imprime ' ' em N2
+	outchar r0, r1			; imprime ' ' em P1
+	outchar r0, r2			; imprime ' ' em P2
 
-	inc r1					; r1++ (posição nave3)
-	inc r2					; r2++ (posição nave4)
+	inc r1					; r1++ (posição Pessoa3)
+	inc r2					; r2++ (posição Pessoa4)
 
-	outchar r0, r1			; imprime ' ' em N3
-	outchar r0, r2			; imprime ' ' em N4
+	outchar r0, r1			; imprime ' ' em P3
+	outchar r0, r2			; imprime ' ' em P4
 
 	pop r2
 	pop r1
@@ -477,7 +500,7 @@ naveApagar:
 
 	rts
 
-naveMover:
+PessoaMover:
 	push r0
 	push r1
 	push r2
@@ -487,20 +510,20 @@ naveMover:
 	
 	loadn r1, #'a'		; Se a tecla digitada for a, move pra esequerda
 	cmp r0, r1
-	ceq	naveMoveEsq
+	ceq	PessoaMoveEsq
 
 	loadn r1, #'d' 		; Se a tecla digitada for d, move pra direita
 	cmp r0, r1
-	ceq naveMoveDir
+	ceq PessoaMoveDir
 
 	loadn r1, #' '
-	load r2, flagTiroNave
+	load r2, flagTiroPessoa
 	loadn r3, #1
 	cmp r2, r3
-	jeq naveAtirou_Skip 	; Se a flag de tiro já está em 1 pula
-	cmp r0, r1 				; Se SPACE foi pressionado e a flag de tiro está em 0, chama naveAtirou
-	ceq naveAtirou
-	naveAtirou_Skip:
+	jeq PessoaAtirou_Skip 	; Se a flag de tiro já está em 1 pula
+	cmp r0, r1 				; Se SPACE foi pressionado e a flag de tiro está em 0, chama PessoaAtirou
+	ceq PessoaAtirou
+	PessoaAtirou_Skip:
 
 	pop r3
 	pop r2
@@ -509,108 +532,108 @@ naveMover:
 
 	rts
 
-naveMoveEsq:
+PessoaMoveEsq:
 	push r0
 	push r1
 
-	; Caso em que a nave está na borda
-	load r0, posNave1
+	; Caso em que a pessoa está na borda
+	load r0, posPessoa1
 	loadn r1, #1041
 	cmp r0, r1
-	jle naveMoveEsq_skip	; if (posNave1 < 1041) não move
+	jle PessoaMoveEsq_skip	; if (posPessoa1 < 1041) não move
 
-	call naveApagar			; Apaga a nave
+	call PessoaApagar			; Apaga a pessoa
 
-	; Decrementa a posição da nave
-	load r0, posNave1
-	load r1, posNave2
+	; Decrementa a posição da pessoa
+	load r0, posPessoa1
+	load r1, posPessoa2
 	dec r0
 	dec r1
-	store posNave1, r0
-	store posNave2, r1
+	store posPessoa1, r0
+	store posPessoa2, r1
 
-	call naveDesenhar		; Desenha a nave na nova coordenada
+	call PessoaDesenhar		; Desenha a pessoa na nova coordenada
 
-	naveMoveEsq_skip:		; Label para não mover a nave
+	PessoaMoveEsq_skip:		; Label para não mover a pessoa
 
 	pop r1
 	pop r0
 
 	rts
 
-naveMoveDir:
+PessoaMoveDir:
 	push r0
 	push r1
 
-	; Caso em que a nave está na borda
-	load r0, posNave1
+	; Caso em que a pessoa está na borda
+	load r0, posPessoa1
 	loadn r1, #1077
 	cmp r0, r1
-	jgr naveMoveDir_skip 	; if (posNave1 > 1077) não move
+	jgr PessoaMoveDir_skip 	; if (posPessoa1 > 1077) não move
 
-	call naveApagar			; Apaga a nave
+	call PessoaApagar			; Apaga a pessoa
 
-	; Incrementa a posição da nave
-	load r0, posNave1
-	load r1, posNave2
+	; Incrementa a posição da pessoa
+	load r0, posPessoa1
+	load r1, posPessoa2
 	inc r0
 	inc r1
-	store posNave1, r0
-	store posNave2, r1
+	store posPessoa1, r0
+	store posPessoa2, r1
 
-	call naveDesenhar		; Desenha a nave na nova coordenada
+	call PessoaDesenhar		; Desenha a pessoa na nova coordenada
 
-	naveMoveDir_skip:		; Label para não mover a nave
+	PessoaMoveDir_skip:		; Label para não mover a pessoa
 
 	pop r1
 	pop r0
 
 	rts
 
-; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-TIRO NAVE-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-naveAtirou:
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-TIRO pessoa-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+PessoaAtirou:
 	push r0
 
 	loadn r0, #1
-	store flagTiroNave, r0		; flagTiroNave = 1
-	load r0, posNave1
-	store posTiroNave, r0       ; posTiroNave = posNave1
+	store flagTiroPessoa, r0		; flagTiroPessoa = 1
+	load r0, posPessoa1
+	store posTiroPessoa, r0       ; posTiroPessoa = posPessoa1
 
 	pop r0
 	
 	rts
 	
-tiroNave:
+tiroPessoa:
 	push r0
 	push r1
 
 	loadn r0, #1
-	load r1, flagTiroNave
+	load r1, flagTiroPessoa
 	cmp r0, r1
-	ceq tiroNaveMover 			; Se flagTiroNave == 1 chama tiroNaveMover
+	ceq tiroPessoaMover 			; Se flagTiroPessoa == 1 chama tiroPessoaMover
 
 	pop r1
 	pop r0
 
 	rts
 
-tiroNaveMover:
+tiroPessoaMover:
 	push r0
 	push r1
 	push r2
 
-	load r0, posTiroNave		; r0 = posTiroNave
-	call tiroNaveApagar 		; apaga tiro
+	load r0, posTiroPessoa		; r0 = posTiroPessoa
+	call tiroPessoaApagar 		; apaga tiro
 	loadn r2, #40 				; move a posição do tiro uma linha pra cima
 	sub r0, r0, r2
 
 	loadn r1, #40
 	cmp r0, r1
-	cle tiroNavePassouPrimeiraLinha ; if (posTiro < 40) passouPrimeiraLinha
+	cle tiroPessoaPassouPrimeiraLinha ; if (posTiro < 40) passouPrimeiraLinha
 
 
-	store posTiroNave, r0  			; armazena nova posição na variavel
-	call tiroNaveDesenhar 			; desenha o tiro
+	store posTiroPessoa, r0  			; armazena nova posição na variavel
+	call tiroPessoaDesenhar 			; desenha o tiro
 
 	pop r2
 	pop r1
@@ -618,19 +641,19 @@ tiroNaveMover:
 
 	rts
 
-tiroNavePassouPrimeiraLinha:
+tiroPessoaPassouPrimeiraLinha:
 	push r0
 	push r1
 	push r2
 
-	; flagTiroNave = 0
+	; flagTiroPessoa = 0
 	loadn r0, #0
-	store flagTiroNave, r0
+	store flagTiroPessoa, r0
 
 	loadn r1, #' '
-	load r2, posTiroNave
+	load r2, posTiroPessoa
 
-	outchar r1, r2  		; Desenha ' ' na posTiroNave
+	outchar r1, r2  		; Desenha ' ' na posTiroPessoa
 	inc r2
 	outchar r1, r2 
 
@@ -640,7 +663,7 @@ tiroNavePassouPrimeiraLinha:
 
 	rts
 
-tiroNaveDesenhar:
+tiroPessoaDesenhar:
 	push r1 
 	push r2 
 	push r3
@@ -648,21 +671,21 @@ tiroNaveDesenhar:
 	push r5
 	push r6
 	
-	load r1, flagTiroNave
+	load r1, flagTiroPessoa
 	loadn r2, #0
 	cmp r1, r2
-	jeq tiroNaveDesenhar_Skip 	; if (flagTiro == 0) skip
+	jeq tiroPessoaDesenhar_Skip 	; if (flagTiro == 0) skip
 
-	load r1, posTiroNave
+	load r1, posTiroPessoa
 	loadn r2, #'W'
 	loadn r3, #'X'
 	loadn r4, #'w'
 	loadn r5, #'x'
 
-	outchar r2, r1 				; Desenha '|' na posTiroNave
+	outchar r2, r1 				; Desenha '|' na posTiroPessoa
 	
 	inc r1 						
-	outchar r3, r1 				; Desenha '|' na posTiroNave + 1
+	outchar r3, r1 				; Desenha '|' na posTiroPessoa + 1
 
 	dec r1
 	loadn r6, #40
@@ -677,7 +700,7 @@ tiroNaveDesenhar:
 
 
 	
-	tiroNaveDesenhar_Skip:
+	tiroPessoaDesenhar_Skip:
 	pop r6
 	pop r5
 	pop r4
@@ -687,27 +710,27 @@ tiroNaveDesenhar:
 	
 	rts
 
-tiroNaveApagar:
+tiroPessoaApagar:
 	push r0
 	push r1
 	push r2
 	push r3
 
 	loadn r0, #' '
-	load r1, posTiroNave
+	load r1, posTiroPessoa
 
-	; if (posTiro == posNave) skip  
-	load r2, posNave1
+	; if (posTiro == posPessoa) skip  
+	load r2, posPessoa1
 	loadn r3, #40
 	cmp r1, r2
-	jeq tiroNaveApagar_Skip
+	jeq tiroPessoaApagar_Skip
 
 	add r1, r1, r3
-	outchar r0, r1  		; Desenha ' ' na posTiroNave
+	outchar r0, r1  		; Desenha ' ' na posTiroPessoa
 	inc r1
-	outchar r0, r1 			; Desenha ' ' na posTiroNave + 1
+	outchar r0, r1 			; Desenha ' ' na posTiroPessoa + 1
 
-	tiroNaveApagar_Skip:
+	tiroPessoaApagar_Skip:
 
 	pop r3
 	pop r2
@@ -716,24 +739,24 @@ tiroNaveApagar:
 
 	rts
 
-; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-ALIEN-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-alien:
-	call alienDesenhar
-	call alienMover
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-barata-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+barata:
+	call barataDesenhar
+	call barataMover
 
 	rts
 
-alienDesenhar:
-	; O alien é composto por 4 caracteres
+barataDesenhar:
+	; O barata é composto por 4 caracteres
 	;			     A1A3
 	;				 A2A4	
 	push r0
 	push r1
 
-	; Mesma lógica de impressão da nave
+	; Mesma lógica de impressão da pessoa
 
-	loadn r0, #0
-	load r1, posAlien1
+	loadn r0, #59
+	load r1, posbarata1
 	outchar	r0, r1
 
 	inc r0
@@ -741,7 +764,7 @@ alienDesenhar:
 	outchar r0, r1
 
 	inc r0
-	load r1, posAlien2
+	load r1, posbarata2
 	outchar r0, r1
 
 	inc r0
@@ -753,20 +776,20 @@ alienDesenhar:
 
 	rts
 
-alienApagar:
+barataApagar:
 	push r0
 	push r1
 
-	; Mesma lógica de apagar a nave
+	; Mesma lógica de apagar a pessoa
 
 	loadn r0, #' '
-	load r1, posAlien1
+	load r1, posbarata1
 	outchar r0, r1
 
 	inc r1
 	outchar r0, r1
 
-	load r1, posAlien2
+	load r1, posbarata2
 	outchar r0, r1
 
 	inc r1
@@ -777,7 +800,7 @@ alienApagar:
 
 	rts
 
-alienMover:
+barataMover:
 	push r0
 	push r1
 	push r2
@@ -792,18 +815,18 @@ alienMover:
 
 	loadn r0, #30
 	cmp r1, r0
-	jne alienMover_skipResetTabela ; if (r1 != 30) não reseta a tabela
+	jne barataMover_skipResetTabela ; if (r1 != 30) não reseta a tabela
 	loadn r1, #0 				   ; else reseta -> r1 = 0
-	alienMover_skipResetTabela:
+	barataMover_skipResetTabela:
 	store IncRand, r1 			   ; armazena novo IncRand
 
 	loadn r0, #0 				   ; if (r2 == 0) moveEsq	
 	cmp r0, r2
-	ceq alienMoverEsq
+	ceq barataMoverEsq
 
 	loadn r0, #1 				   ; if (r2 == 1) moveDir
 	cmp r0, r2
-	ceq alienMoverDir
+	ceq barataMoverDir
 
 	pop r2
 	pop r1
@@ -811,125 +834,125 @@ alienMover:
 
 	rts
 
-alienMoverEsq:
+barataMoverEsq:
 	push r0
 	push r1
 
-	load r0, posAlien1
+	load r0, posbarata1
 	loadn r1, #1
 	cmp r0, r1
-	jle alienMoverEsq_Skip  ; Se está na borda esquerda, não move mais
+	jle barataMoverEsq_Skip  ; Se está na borda esquerda, não move mais
 
-	call alienApagar 		; Apaga o alien
+	call barataApagar 		; Apaga o barata
 
 	; Decrementa pos
-	load r0, posAlien1
-	load r1, posAlien2
+	load r0, posbarata1
+	load r1, posbarata2
 	dec r0
 	dec r1
-	store posAlien1, r0
-	store posAlien2, r1
+	store posbarata1, r0
+	store posbarata2, r1
 
-	; Desenha o alien
-	call alienDesenhar
+	; Desenha o barata
+	call barataDesenhar
 
-	alienMoverEsq_Skip:
+	barataMoverEsq_Skip:
 
 	pop r1
 	pop r0
 
 	rts
 
-alienMoverDir:
+barataMoverDir:
 	push r0
 	push r1
 
-	load r0, posAlien1 		; Se está na borda direita, não move mais
+	load r0, posbarata1 		; Se está na borda direita, não move mais
 	loadn r1, #37
 	cmp r0, r1
-	jgr alienMoverDir_Skip
+	jgr barataMoverDir_Skip
 
-	call alienApagar 		; Apaga o alien
+	call barataApagar 		; Apaga o barata
 
 	; Incrementa pos
-	load r0, posAlien1
-	load r1, posAlien2
+	load r0, posbarata1
+	load r1, posbarata2
 	inc r0
 	inc r1
-	store posAlien1, r0
-	store posAlien2, r1
+	store posbarata1, r0
+	store posbarata2, r1
 
-	; Desehna alien
-	call alienDesenhar
+	; Desehna barata
+	call barataDesenhar
 
-	alienMoverDir_Skip:
+	barataMoverDir_Skip:
 
 	pop r1
 	pop r0
 
 	rts
 
-; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-TIRO ALIEN-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-alienAtirou:
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-TIRO barata-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+barataAtirou:
 	push r0
 	push r1
 
 	loadn r0, #1
-	load r1, flagTiroAlien
+	load r1, flagTirobarata
 	cmp r0, r1
-	jeq alienAtirou_Skip  		; se flagTiroAlien já está em 1, pula, para não resetar indevidamente posTiroAlien
+	jeq barataAtirou_Skip  		; se flagTirobarata já está em 1, pula, para não resetar indevidamente posTirobarata
 
 	loadn r0, #1
-	store flagTiroAlien, r0		; flagTiroAlien = 1
-	load r0, posAlien2
-	store posTiroAlien, r0       ; posTiroAlien = posAlien2
+	store flagTirobarata, r0		; flagTirobarata = 1
+	load r0, posbarata2
+	store posTirobarata, r0       ; posTirobarata = posbarata2
 
-	alienAtirou_Skip:
+	barataAtirou_Skip:
 
 	pop r1
 	pop r0
 	
 	rts
 	
-tiroAlien:
+tirobarata:
 	push r0
 	push r1
 
 	loadn r0, #1
-	load r1, flagTiroAlien
+	load r1, flagTirobarata
 	cmp r0, r1
-	ceq tiroAlienMover 			; Se flagTiroAlien == 1 chama tiroAlienMover
+	ceq tirobarataMover 			; Se flagTirobarata == 1 chama tirobarataMover
 
 	pop r1
 	pop r0
 
 	rts
 
-tiroAlienMover:
+tirobarataMover:
 	push r0
 	push r1
 	push r2
 
-	load r0, posTiroAlien		; r0 = posTiroAlien
-	call tiroAlienApagar 		; apaga tiro
+	load r0, posTirobarata		; r0 = posTirobarata
+	call tirobarataApagar 		; apaga tiro
 	loadn r2, #40 				; move a posição do tiro uma linha pra baixo
 	add r0, r0, r2
 
 	loadn r1, #1080
 	cmp r0, r1
-	cgr tiroAlienPassouUltimaLinha ; if (posTiro > 1080) passouUltimaLinha
+	cgr tirobarataPassouUltimaLinha ; if (posTiro > 1080) passouUltimaLinha
 
-	; if (posTiroAlien == posNave1 || posTiroAlien == posNave1 + 1 || posTiroAlien == posNave1 - 1) decrementa 
+	; if (posTirobarata == posPessoa1 || posTirobarata == posPessoa1 + 1 || posTirobarata == posPessoa1 - 1) decrementa 
 
 	; T1 T2 ||    T1 T2 || T1 T2
-	; N1 N2 || N1 N2    ||    N1 N2
+	; P1 P2 || P1 P2    ||    P1 P2
 
-	; T = tiroAlien    N = nave
+	; T = tirobarata    N = pessoa
 
-	; posTiroAlien = T1
-	; posNave1 = n1
+	; posTirobarata = T1
+	; posPessoa1 = P1
 
-	load r1, posNave1
+	load r1, posPessoa1
 	cmp r0, r1
 	ceq decVidas
 	inc r1
@@ -940,8 +963,8 @@ tiroAlienMover:
 	cmp r0, r1
 	ceq decVidas
 
-	store posTiroAlien, r0  			; armazena nova posição na variavel
-	call tiroAlienDesenhar 			 	; desenha o tiro
+	store posTirobarata, r0  			; armazena nova posição na variavel
+	call tirobarataDesenhar 			 	; desenha o tiro
 
 	pop r2
 	pop r1
@@ -949,58 +972,58 @@ tiroAlienMover:
 
 	rts
 
-tiroAlienPassouUltimaLinha:
+tirobarataPassouUltimaLinha:
 	push r0
 
-	; flagTiroAlien = 0
+	; flagTirobarata = 0
 	loadn r0, #0
-	store flagTiroAlien, r0
+	store flagTirobarata, r0
 
 	pop r0
 
 	rts
 
-tiroAlienDesenhar:
+tirobarataDesenhar:
 	push r1 
 	push r2 
 	
-	load r1, flagTiroAlien
+	load r1, flagTirobarata
 	loadn r2, #0
 	cmp r1, r2
-	jeq tiroAlienDesenhar_Skip 	; if (flagTiroAlien == 0) skip
+	jeq tirobarataDesenhar_Skip 	; if (flagTirobarata == 0) skip
 
-	load r1, posTiroAlien
+	load r1, posTirobarata
 	loadn r2, #4
-	outchar r2, r1 				; Desenha ' |' na posTiroAlien
+	outchar r2, r1 				; Desenha ' |' na posTirobarata
 	
 	inc r2
 	inc r1 						
-	outchar r2, r1 				; Desenha '| ' na posTiroAlien + 1
+	outchar r2, r1 				; Desenha '| ' na posTirobarata + 1
 	
-	tiroAlienDesenhar_Skip:
+	tirobarataDesenhar_Skip:
 	pop r2
 	pop r1 
 	
 	rts
 
-tiroAlienApagar:
+tirobarataApagar:
 	push r0
 	push r1
 	push r2
 
 	loadn r0, #' '
-	load r1, posTiroAlien
+	load r1, posTirobarata
 
-	; if (posTiroAlein == posAlien2) skip  
-	load r2, posAlien2
+	; if (posTiroAlein == posbarata2) skip  
+	load r2, posbarata2
 	cmp r1, r2
-	jeq tiroAlienApagar_Skip
+	jeq tirobarataApagar_Skip
 
-	outchar r0, r1  		; Desenha ' ' na posTiroAlien
+	outchar r0, r1  		; Desenha ' ' na posTirobarata
 	inc r1
-	outchar r0, r1 			; Desenha ' ' na posTiroAlien + 1
+	outchar r0, r1 			; Desenha ' ' na posTirobarata + 1
 
-	tiroAlienApagar_Skip:
+	tirobarataApagar_Skip:
 
 	pop r2
 	pop r1
@@ -1010,7 +1033,7 @@ tiroAlienApagar:
 
 
 
-; Funções de utilidade -> FONTE: https://github.com/simoesusp/Processador-ICMC/blob/master/Software_Assembly/Nave11.asm
+; Funções de utilidade -> FONTE: https://github.com/simoesusp/Processador-ICMC/blob/master/Software_Assembly/Pessoa11.asm
 ;********************************************************
 ;                       IMPRIME TELA
 ;********************************************************	
@@ -1197,10 +1220,10 @@ gameOverLinha3  : string "                                        "
 gameOverLinha4  : string "                                        "
 gameOverLinha5  : string "                                        "
 gameOverLinha6  : string "                                        "
-gameOverLinha7  : string "            G A M E  O V E R            "
+gameOverLinha7  : string "           G A M E  O V E R             "
 gameOverLinha8  : string "                                        "
-gameOverLinha9  : string "         Voce deu uma chinelada         "
-gameOverLinha10 : string "             na barata dela!            "
+gameOverLinha9  : string "       Voce  precisa treinar mais       "
+gameOverLinha10 : string "          as suas chineladas!           "
 gameOverLinha11 : string "                                        "
 gameOverLinha12 : string "                                        "
 gameOverLinha13 : string "                                        "
@@ -1209,9 +1232,9 @@ gameOverLinha15 : string "                                        "
 gameOverLinha16 : string "                                        "
 gameOverLinha17 : string "                                        "
 gameOverLinha18 : string "                                        "
-gameOverLinha19 : string "        ENTER -> Jogar Novamente        "
+gameOverLinha19 : string "           J - Jogar Novamente          "
 gameOverLinha20 : string "                                        "
-gameOverLinha21 : string "             SPACE -> Sair              "
+gameOverLinha21 : string "              SPACE - Sair              "
 gameOverLinha22 : string "                                        "
 gameOverLinha23 : string "                                        "
 gameOverLinha24 : string "                                        "
@@ -1221,7 +1244,76 @@ gameOverLinha27 : string "                                        "
 gameOverLinha28 : string "                                        "
 gameOverLinha29 : string "                                        "
 
+
+
+; Game Win
+gameWinLinha0  : string "                                        "
+gameWinLinha1  : string "                                        "
+gameWinLinha2  : string "                                        "
+gameWinLinha3  : string "                                        "
+gameWinLinha4  : string "                                        "
+gameWinLinha5  : string "                                        "
+gameWinLinha6  : string "                                        "
+gameWinLinha7  : string "         V O C E   G A N H O U !        "
+gameWinLinha8  : string "                                        "
+gameWinLinha9  : string "         Voce deu uma chinelada         "
+gameWinLinha10 : string "             na barata dela!            "
+gameWinLinha11 : string "                                        "
+gameWinLinha12 : string "                                        "
+gameWinLinha13 : string "                                        "
+gameWinLinha14 : string "                                        "
+gameWinLinha15 : string "                                        "
+gameWinLinha16 : string "                                        "
+gameWinLinha17 : string "                                        "
+gameWinLinha18 : string "                                        "
+gameWinLinha19 : string "           J - Jogar Novamente          "
+gameWinLinha20 : string "                                        "
+gameWinLinha21 : string "              SPACE - Sair              "
+gameWinLinha22 : string "                                        "
+gameWinLinha23 : string "                                        "
+gameWinLinha24 : string "                                        "
+gameWinLinha25 : string "                                        "
+gameWinLinha26 : string "                                        "
+gameWinLinha27 : string "                                        "
+gameWinLinha28 : string "                                        "
+gameWinLinha29 : string "                                        "
+
+telaFinalLinha0  : string "   ;<                                   "
+telaFinalLinha1  : string "   =>          ;<                       "
+telaFinalLinha2  : string "               =>                       "
+telaFinalLinha3  : string "                               ;<       "
+telaFinalLinha4  : string "                               =>       "
+telaFinalLinha5  : string "       ;<                               "
+telaFinalLinha6  : string "       =>                               "
+telaFinalLinha7  : string "                      ;<                "
+telaFinalLinha8  : string "                      =>                "
+telaFinalLinha9  : string "                                        "
+telaFinalLinha10 : string "                                        "
+telaFinalLinha11 : string "                                ;<      "
+telaFinalLinha12 : string "                                =>      "
+telaFinalLinha13 : string "    ;<        ___________               "
+telaFinalLinha14 : string "    =>       |           |              "
+telaFinalLinha15 : string "             | OBRIGADA  |              "
+telaFinalLinha16 : string "             | POR       |              "
+telaFinalLinha17 : string "             | JOGAR!    |              "
+telaFinalLinha18 : string "             |___________|              "
+telaFinalLinha19 : string "                  ||                    "
+telaFinalLinha20 : string "                 _||                    "
+telaFinalLinha21 : string "   ()___      #$/ ||                    "
+telaFinalLinha22 : string " ()//__/)_____%&__________()            "
+telaFinalLinha23 : string " ||(___)//#/_/#/_/#/_/#()/||            "
+telaFinalLinha24 : string " ||----|#| |#|_|#|_|#|_|| ||            "
+telaFinalLinha25 : string " ||____|_|#|_|#|_|#|_|#||/||            "
+telaFinalLinha26 : string " ||    |#|_|#|_|#|_|#|_||               "
+telaFinalLinha27 : string "                                        "
+telaFinalLinha28 : string "                                        "
+telaFinalLinha29 : string "                                        "
+
 ; HUD
-stringHud : string " SCORE:                         VIDAS:   "
+stringHud : string " VIDAS:                        SCORE:   "
 
 fim:
+	loadn r0, #0 					; Posição do começo da tela
+	loadn r1, #telaFinalLinha0 		; Endereço da tela na memória
+	call ImprimeTela 				; imprime tela  
+	halt
