@@ -14,8 +14,10 @@ Trabalho da matéria **SSC0513**, contendo o jogo feito em Assembly.
 ## [Descrição Geral](#descrição-geral)  
 "Fuga das Baratas" é um jogo desenvolvido em Assembly, no qual o jogador é o personagem da música "Toda vez que eu chego em casa a barata da vizinha ta na minha cama". Para vencer o jogo, ele deve acertar 10 chineladas na barata.
 
+
 O jogo foi projetado para ser executado no [Simulador de Processador](https://proc.giroto.dev/) ou no Simple Simulate.
 O Simple Simulator pode ser encontrado [aqui](https://github.com/brubru8888/Fuga-das-Baratas/blob/main/Simulador/README.md#detalhes-dos-multiplexadores). 
+
 ---
 
 ## [Como Jogar?](#como-jogar)  
