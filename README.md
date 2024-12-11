@@ -13,5 +13,12 @@ Recomendamos utilizar o simulador do processador (https://proc.giroto.dev/). Par
 
 ### Guia de imagens
 - Acessar o site e importar os arquivos `.asm` em file e `.mif` em charmap
-![Texto alternativo](\img\imports.jpg " ")
+- Dar Build no código;
+- Aumentar a frequência para ~50.0 MHz, ou um valor da sua escolha;
+- Clicar em Run;
+- Seguir as instruções do jogo na tela Scree;
+- Se divirta!
+
 ![alt text](img/imports.jpg)
+![alt text](img/buid.png)
+![alt text](img/run.png)
