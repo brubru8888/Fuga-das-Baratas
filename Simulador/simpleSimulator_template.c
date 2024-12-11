@@ -51,52 +51,48 @@ Do todos os comandos...
 
 // Opcodes das Instrucoes:
 // Data Manipulation:
-#define LOAD 48       // "110000"; -- LOAD Rx END  -- Rx <- M[END]  Format: < inst(6) | Rx(3) | xxxxxxx >  + 16bit END
-#define STORE 49      // "110001"; -- STORE END Rx -- M[END] <- Rx  Format: < inst(6) | Rx(3) | xxxxxxx >  + 16bit END
-#define LOADN 56   // "111000"; -- LOAD Rx Nr  (b0=0)   -- Rx <- Nr    ou   Load SP Nr (b0=1)  -- SP <- Nr    Format: < inst(6) | Rx(3) | xxxxxxb0 >  + 16bit Numero
-#define LOADI 60  // "111100"; -- LOAD Rx Ry   -- Rx <- M[Ry]	Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
-#define STOREI 61 // "111101"; -- STORE Rx Ry  -- M[Rx] <- Ry	Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
-#define MOV	51        // "110011"; -- MOV Rx Ry    -- Rx <- Ry	  	Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
-
+#define LOAD 48       
+#define STORE 49     
+#define LOADN 56   
+#define LOADI 60 
+#define STOREI 61 
+#define MOV	51        
 
 // I/O Instructions:
-#define OUTCHAR	50  // "110010"; -- OUTCHAR Rx Ry -- Video[Ry] <- Char(Rx)								Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
-#define INCHAR 53   // "110101"; -- INCHAR Rx     -- Rx[7..0] <- KeyPressed	Rx[15..8] <- 0´s  Format: < inst(6) | Rx(3) | xxxxxxx >
-
+#define OUTCHAR	50 
+#define INCHAR 53   
 
 // Aritmethic Instructions(All should begin wiht "10"):
 #define ARITH 2
-#define ADD 32      // "100000"; -- ADD Rx Ry Rz / ADDC Rx Ry Rz  	-- Rx <- Ry + Rz / Rx <- Ry + Rz + C  -- b0=Carry	  	Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| C >
-#define SUB 33      // "100001"; -- SUB Rx Ry Rz / SUBC Rx Ry Rz  	-- Rx <- Ry - Rz / Rx <- Ry - Rz + C  -- b0=Carry	  	Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| C >
-#define MULT 34     // "100010"; -- MUL Rx Ry Rz  / MUL Rx Ry Rz	-- Rx <- Ry * Rz / Rx <- Ry * Rz + C  -- b0=Carry		Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| C >
-#define DIV	35      // "100011"; -- DIV Rx Ry Rz 			-- Rx <- Ry / Rz / Rx <- Ry / Rz + C  -- b0=Carry		Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| C >
-#define INC	36      // "100100"; -- INC Rx / DEC Rx                 		-- Rx <- Rx + 1 / Rx <- Rx - 1  -- b6= INC/DEC : 0/1	Format: < inst(6) | Rx(3) | b6 | xxxxxx >
-#define LMOD 37     // "100101"; -- MOD Rx Ry Rz   			-- Rx <- Ry MOD Rz 	  	Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| x >
-
+#define ADD 32     
+#define SUB 33     
+#define MULT 34     
+#define DIV	35      
+#define INC	36      
+#define LMOD 37
 
 // Logic Instructions (All should begin wiht "01"):
 #define LOGIC 1
-#define LAND 18     // "010010"; -- AND Rx Ry Rz  	-- Rz <- Rx AND Ry	Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| x >
-#define LOR 19      // "010011"; -- OR Rx Ry Rz   	-- Rz <- Rx OR Ry		Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| x >
-#define LXOR 20     // "010100"; -- XOR Rx Ry Rz  	-- Rz <- Rx XOR Ry	Format: < inst(6) | Rx(3) | Ry(3) | Rz(3)| x >
-#define LNOT 21     // "010101"; -- NOT Rx Ry       	-- Rx <- NOT(Ry)		Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
-#define SHIFT 16    // "010000"; -- SHIFTL0 Rx,n / SHIFTL1 Rx,n / SHIFTR0 Rx,n / SHIFTR1 Rx,n / ROTL Rx,n / ROTR Rx,n
-//           -- Format: < inst(6) | Rx(3) |  b6 b5 b4 | nnnn >
-#define CMP 22      // "010110"; -- CMP Rx Ry  		-- Compare Rx and Ry and set FR :  FL = <...|over|carry|zero|equal|lesser|greater>	  Format: < inst(6) | Rx(3) | Ry(3) | xxxx >
+#define LAND 18     
+#define LOR 19      
+#define LXOR 20    
+#define LNOT 21     
+#define SHIFT 16    
+#define CMP 22     
 
 // FLOW CONTROL Instructions:
-#define JMP 2       // "000010"; -- JMP END    -- PC <- 16bit END 							  : b9-b6 = COND		Format: < inst(6) | COND(4) | xxxxxx >   + 16bit END
-#define CALL 3      // "000011"; -- CALL END   -- M[SP] <- PC | SP-- | PC <- 16bit END   : b9-b6 = COND	  	Format: < inst(6) | COND(4) | xxxxxx >   + 16bit END
-#define RTS	4       // "000100"; -- RTS        -- SP++ | PC <- M[SP] | b6=Rx/FR: 1/0	  							Format: < inst(6) | xxxxxxxxxx >
-#define PUSH 5      // "000101"; -- PUSH Rx / PUSH FR  -- M[SP] <- Rx / M[SP] <- FR | SP-- 	  			  : b6=Rx/FR: 0/1		Format: < inst(6) | Rx(3) | b6 | xxxxxx >
-#define POP	6       // "000110"; -- POP Rx  / POP FR   -- SP++ | Rx <- M[SP]  / FR <- M[SP]	  			  : b6=Rx/FR: 0/1		Format: < inst(6) | Rx(3) | b6 | xxxxxx >
+#define JMP 2      
+#define CALL 3      
+#define RTS	4       
+#define PUSH 5      
+#define POP	6       
 
 
 // Control Instructions
-#define NOP	0       // "000000"; -- NOP            -- Do Nothing	 						Format: < inst(6) | xxxxxxxxxx >
-#define HALT 15     // "001111"; -- HALT           -- Stop Here								Format: < inst(6) | xxxxxxxxxx >
-#define SETC 8      // "001000"; -- CLEARC / SETC  -- Set/Clear Carry: b9 = 1-set; 0-clear	Format: < inst(6) | b9 | xxxxxxxxx >
-#define BREAKP 14   // "001110"; -- BREAKP         -- Break Point: Pausa execussao			Format: < inst(6) | xxxxxxxxxx >
+#define NOP	0       
+#define HALT 15     
+#define SETC 8       
+#define BREAKP 14   
 
 // Flag register
 #define NEGATIVE 9
@@ -110,10 +106,10 @@ Do todos os comandos...
 #define LESSER 1
 #define GREATER 0
 
-//#include <curses.h>     //  Novo Terminal cheio de funcoes!!!
-#include <stdlib.h>     // Rand
-#include <stdio.h>      // Printf
-#include <fcntl.h>      // Fileopen - Fileclose - fprintf - fscanf
+
+#include <stdlib.h>     
+#include <stdio.h>      
+#include <fcntl.h>      
 #include <math.h>
 
 // kbhit() TODO: deletar
@@ -186,7 +182,7 @@ int kbhit(void) {
 }
 
 
-int FR[16] = {0};  // Flag Register: <...|Negativo|StackUnderflow|StackOverflow|DivByZero|ArithmeticOverflow|carry|zero|equal|lesser|greater>
+int FR[16] = {0};  
 
 int main()
 {
@@ -739,8 +735,8 @@ loop:
 	else if (selM5 == sM3) M5 = M3;
 
 	// Selecao do Mux6
-	if (selM6 == sULA) M6 = resultadoUla.auxFR;// TODO: Talvez o auxFR deva ser o valor do FR //**Sempre recebe flags da ULA
-	else if (selM6 == sDATA_OUT) M6 = DATA_OUT; //** A menos que seja POP FR, quando recebe da Memoria
+	if (selM6 == sULA) M6 = resultadoUla.auxFR;
+	else if (selM6 == sDATA_OUT) M6 = DATA_OUT;
 
 	goto loop;
 
