@@ -228,7 +228,7 @@ instrucoes:
 main:
  	call ApagaTela   		; Limpa a tela
 
-	loadn r0, #1			
+	loadn r0, #3			
 	store vidas, r0 		; Quantidade de vidas
 
 	loadn r0, #0
