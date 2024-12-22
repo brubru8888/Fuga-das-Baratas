@@ -7,7 +7,7 @@ Trabalho da matéria **SSC0513**, contendo o jogo feito em Assembly.
 1. [Descrição Geral](#descrição-geral)  
 2. [Como Jogar?](#como-jogar)  
 3. [Guia de Imagens](#guia-de-imagens)  
-4. [Vídeo Explicando o Jogo](#explicando-o-jogo)
+4. [Vídeo do Jogo](#vídeo-do-jogo)
 
 ---
 
@@ -69,6 +69,6 @@ Ajuste a frequência do simulador e clique em **RUN** para jogar.
 
 ---
 
-## [Vídeo Explicando o Jogo](#explicando-o-jogo)
+## [Vídeo do Jogo](#vídeo-do-jogo)
 
 No [vídeo disponível neste link](https://youtu.be/4zbQtHxYZOU?feature=shared), apresentamos uma explicação detalhada sobre o nosso jogo. Nele, mostramos como foi o processo de desenvolvimento, abordamos o funcionamento do código do personagem "pessoa" e do personagem "barata", além de descrevermos as transições entre as telas do jogo.
