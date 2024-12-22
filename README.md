@@ -69,6 +69,6 @@ Ajuste a frequência do simulador e clique em **RUN** para jogar.
 
 ---
 
-## [Explicação do Jogo](#explicando-o-jogo)
+## [Vídeo Explicando o Jogo](#explicando-o-jogo)
 
 No [vídeo disponível neste link](https://youtu.be/4zbQtHxYZOU?feature=shared), apresentamos uma explicação detalhada sobre o nosso jogo. Nele, mostramos como foi o processo de desenvolvimento, abordamos o funcionamento do código do personagem "pessoa" e do personagem "barata", além de descrevermos as transições entre as telas do jogo.
